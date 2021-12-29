@@ -8,7 +8,6 @@ local events = {}
 function moduleScraper(loc)
     for _,v in pairs(loc:GetDescendants()) do
         if v:IsA("ModuleScript") and v ~= script then
-            print(v.Name)
             modules[v.Name] = require(v)
         end
     end
