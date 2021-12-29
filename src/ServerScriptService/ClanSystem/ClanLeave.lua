@@ -2,50 +2,33 @@ local module = {}
     module.Leave = function(player,args)
         local modules,events = args[1],args[2]
 
-        local clan = nil
-        local delete = false
-        local id = nil
-        local ClanData = modules.ClanData
-
-        for x,c in pairs(ClanData) do
-            if c["Leader"] == player.UserId then
-                clan = c
-                id = x
-                delete = true
-                break
-            else
-                for i,v in pairs(c["Followers"]) do
-                    if v.UserId == player.UserId then
-                        clan = c
-                        id = i
-                        break
-                    end
-                end
-            end
-        end
+        local ClanGUID = modules.ClanData["ListOfPlayersInAnyClan"][player.UserId]["GUID"]
+        local CurrentClan = modules.ClanData[ClanGUID]
         
-        if clan == nil then
-            return
-        end
+        if CurrentClan.Leader == player.Name then
+            -- Pick a random follower to make the leader of the clan if there is any
+           if #CurrentClan.Followers > 0 then
+                local ChosenFollower = CurrentClan.Followers[math.random(1,#CurrentClan.Followers)]
 
-        if delete == true then
-            ClanData["ListOfPlayersInAnyClan"][clan["Leader"]] = nil
-            if #clan["Followers"] > 0 then
-                for i,_ in pairs(clan["Followers"]) do
-                    ClanData["ListOfPlayersInAnyClan"][clan["Followers"][i]] = nil
-                end
-            end
+                CurrentClan.Leader = ChosenFollower
+                modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = nil
 
-            ClanData[id] = nil
+                warn("Handed over ownership")
+                print(modules.ClanData)
+                return true
+           else
+                modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = nil
+                modules.ClanData[ClanGUID] = nil
 
-            warn("clan deleted")
+                warn("Clan deleted")
+                print(modules.ClanData)
+                return true
+           end
         else
-            ClanData["ListOfPlayersInAnyClan"][clan["Follower"][id]] = nil
-            if #clan["Followers"] > 0 then
-                for i,_ in pairs(clan["Followers"]) do
-                    ClanData["ListOfPlayersInAnyClan"][clan["Followers"][i]] = nil
-                end
-            end
+            CurrentClan.Followers[player.UserId] = nil
+            warn("Left clan")
+            print(modules.ClanData)
+            return true
         end
     end
 return module

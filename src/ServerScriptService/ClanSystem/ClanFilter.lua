@@ -1,4 +1,5 @@
 local TEXT_SERVICE = game:GetService("TextService")
+local HTTP_SERVICE = game:GetService("HttpService")
 
 local module = {}
     module.FilterClanName = function(player,args)
@@ -28,11 +29,12 @@ local module = {}
             
             local clanTable = {
                 ["Name"] = filteredText,
-                ["Leader"] = player.UserId,
+                ["GUID"] = HTTP_SERVICE:GenerateGUID(false),
+                ["Leader"] = player.Name,
                 ["Followers"] = {}
             }
-            table.insert(modules.ClanData,clanTable)
-            modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = player.UserId
+            modules.ClanData[clanTable.GUID] = clanTable
+            modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = {["UID"] = player.UserId,["Name"] = filteredText,["GUID"] = clanTable.GUID}
             return true
         else
             return false

@@ -35,9 +35,24 @@ function ToggleRadialInventory(X,InputState)
     end
 end
 
+function SendInvite(x,InputState)
+    if InputState == Enum.UserInputState.Begin then
+        modules.ClanNetworkHandler.SendInvite()
+    end
+end
+
 -- Clan Stuff
-modules.ClanNetworkHandler.Init(modules)
- 
+task.spawn(function()
+    modules.ClanNetworkHandler.Init(modules)
+end)
+task.spawn(function()
+    modules.ClanNetworkHandler.SetupInviteConnection()
+end)
+task.spawn(function()
+    modules.ClanNetworkHandler.SetupClanInfoRefresh()
+end)
+
 -- Have these things at the very bottom of the code
 game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
 ContextActionService:BindActionAtPriority("ToggleMenu", ToggleRadialInventory, false,math.huge, Enum.KeyCode.Tab)
+ContextActionService:BindActionAtPriority("SendInvite", SendInvite, false,math.huge, Enum.KeyCode.Return)

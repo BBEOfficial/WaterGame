@@ -36,16 +36,21 @@ end
 -- end)
 
 Players.PlayerRemoving:Connect(function(plr)
+    if isPlayerInClan(plr) then
+        modules.ClanLeave.Leave(plr,table.pack(modules,events))
+    end
     modules.DataInteractions.PlayerLeft(plr)
 end)
 
 -- Clan Stuff
 warn("clan stuff")
 
+modules.ClanInvite.Init(modules)
+
 function isPlayerInClan(player)
 	for _,v in pairs(modules.ClanData["ListOfPlayersInAnyClan"]) do
-		if v == player.UserId then
-			return true
+		if v.UID == player.UserId then
+			return true,v
 		end
 	end
 	
@@ -75,3 +80,47 @@ events.LeaveClan.OnServerEvent:Connect(function(player)
 
     modules.ClanLeave.Leave(player,table.pack(modules,events))
 end)
+
+events.GetClanInfo.OnServerInvoke = function(player)
+    local IsInClan,ClanData = isPlayerInClan(player)
+    if  IsInClan == false then
+        return "Player is not in a clan"
+    end
+ 
+    local ClanGuid= ClanData["GUID"]
+
+    return modules.ClanData[ClanGuid]
+end
+
+events.SendInvite.OnServerEvent:Connect(function(from,to)
+    warn("sending invite")
+    local IsInClan,ClanData = isPlayerInClan(from)
+    if  IsInClan == false then
+        return "Player is not in a clan"
+    end
+
+    local plr = Players:FindFirstChild(to)
+    if not plr then
+        return
+    end
+
+    local args = table.pack(plr,ClanData.Name,ClanData.GUID)
+
+    modules.ClanInvite.InvitePlayer(from,args)
+end)
+
+events.JoinClan.OnServerEvent:Connect(function(plr,guid)
+    local ans = modules.ClanInvite.JoinClan(plr,guid)
+
+    repeat wait() until ans
+
+    warn("Refreshing Clan Information")
+    for index,player in ipairs(modules.ClanData[guid]["Followers"]) do -- this is where the error is ----------------------------------------------------
+        print(player.Name)
+        local actualPlayer = Players:FindFirstChild(player.Name)
+        events.RefreshClanInfo:FireClient(actualPlayer)
+    end
+    events.RefreshClanInfo:FireClient(Players:FindFirstChild(modules.ClanData[guid].Leader))
+    events.RefreshClanInfo:FireClient(plr)
+end)
+
