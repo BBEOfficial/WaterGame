@@ -8,6 +8,7 @@ local events = {}
 function moduleScraper(loc)
     for _,v in pairs(loc:GetDescendants()) do
         if v:IsA("ModuleScript") and v ~= script then
+            print(v.Name)
             modules[v.Name] = require(v)
         end
     end
@@ -53,6 +54,10 @@ function isPlayerInClan(player)
 end
 
 events.MakeClan.OnServerInvoke = function(player,args)
+    if isPlayerInClan(player) then
+        return "Player is already in a clan"
+    end
+
     args[2] = modules
     args[3] = events
 

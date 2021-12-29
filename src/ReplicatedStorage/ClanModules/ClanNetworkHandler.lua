@@ -23,7 +23,7 @@ eventScraper(ReplicatedStorage)
 local MenuButtonToggle = true
 
 local ClanNetwork = {}
- 
+
     ClanNetwork.Init = function(M)
         modules = M
         modules.ClanUiHandler.Init(modules)
@@ -57,8 +57,17 @@ local ClanNetwork = {}
                local ans = events.MakeClan:InvokeServer(table.pack(TextBox.Text))
                if ans == true then
                 warn("Clan created")
+                modules.ClanUiHandler.CreationMenu(false,{0.2,Enum.EasingStyle.Back,UDim2.new(0.111, 0,-0.208, 0)})
+                return true
+               else
+                warn("Issue with creating clan")
+                return ans
                end
             end
+        end)
+
+        ClanInfoMenuLeave.MouseButton1Down:Connect(function()
+            events.LeaveClan:FireServer()
         end)
     end
 
