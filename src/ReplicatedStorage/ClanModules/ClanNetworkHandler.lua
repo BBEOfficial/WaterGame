@@ -31,6 +31,7 @@ function openInvite(ClanName,ClanGUID)
 
     -- countdown
     local currentTime = 20
+    local countdownEnd = false
 
     task.spawn(function()
         ClanGui:WaitForChild("CLAN_INVITE_NOTIFICATION"):WaitForChild("Notification"):WaitForChild("Timer").Text = "00:20"
@@ -38,8 +39,15 @@ function openInvite(ClanName,ClanGUID)
             wait(1)
             currentTime -= 1
             ClanGui:WaitForChild("CLAN_INVITE_NOTIFICATION"):WaitForChild("Notification"):WaitForChild("Timer").Text = (if currentTime >= 10 then "00:"..currentTime else "00:0"..currentTime)
-        until currentTime == 0
-        modules.ClanUiHandler.InviteNotification(false,{0.25,Enum.EasingStyle.Back,UDim2.new(1.5, 0,0.7, 0)})
+        until currentTime == 0 or countdownEnd == true
+
+        if countdownEnd == true then
+            return
+        end
+
+        modules.ClanUiHandler.InviteNotification(false,{0.5,Enum.EasingStyle.Back,UDim2.new(1.5, 0,0.7, 0)})
+        events.JoinClan:FireServer(ClanGUID,true)
+
         InviteOpen = false
         return
     end)
@@ -48,9 +56,17 @@ function openInvite(ClanName,ClanGUID)
     local InviteNotificationNo = ClanGui:WaitForChild("CLAN_INVITE_NOTIFICATION"):WaitForChild("Notification"):WaitForChild("N")
 
     InviteNotificationYes.MouseButton1Down:Connect(function()
-        modules.ClanUiHandler.InviteNotification(false,{0.25,Enum.EasingStyle.Back,UDim2.new(1.5, 0,0.7, 0)})
+        modules.ClanUiHandler.InviteNotification(false,{0.5,Enum.EasingStyle.Back,UDim2.new(1.5, 0,0.7, 0)})
         events.JoinClan:FireServer(ClanGUID)
-        warn("yes picked")
+        countdownEnd = true
+        return
+    end)
+
+    InviteNotificationNo.MouseButton1Down:Connect(function()
+        modules.ClanUiHandler.InviteNotification(false,{0.5,Enum.EasingStyle.Back,UDim2.new(1.5, 0,0.7, 0)})
+        events.JoinClan:FireServer(ClanGUID,true)
+        countdownEnd = true
+        return
     end)
 end
 
@@ -131,12 +147,7 @@ local ClanNetwork = {}
             if TextBox.Text ~= "" then
                local ans = events.MakeClan:InvokeServer(table.pack(TextBox.Text))
                if ans == true then
-                warn("Clan created")
-                modules.ClanUiHandler.CreationMenu(false,{0.2,Enum.EasingStyle.Back,UDim2.new(0.111, 0,-0.208, 0)})
-
-                MenuButtonToggle = false
-                modules.ClanUiHandler.ClanInfoMenu(true,{0.5,Enum.EasingStyle.Back,UDim2.new(0.111, 0,0.358, 0)})
-                
+                warn("Clan created") 
                 task.spawn(function()
                     local clanInfo = events.GetClanInfo:InvokeServer()
 
@@ -144,6 +155,13 @@ local ClanNetwork = {}
                         modules.ClanUiHandler.ApplyClanInfoToUI(clanInfo)
                     end
                 end)
+
+                modules.ClanUiHandler.CreationMenu(false,{0.2,Enum.EasingStyle.Back,UDim2.new(0.111, 0,-0.208, 0)})
+
+                MenuButtonToggle = false
+                modules.ClanUiHandler.ClanInfoMenu(true,{0.5,Enum.EasingStyle.Back,UDim2.new(0.111, 0,0.358, 0)})
+                
+               
 
                 return true
                else
@@ -154,6 +172,7 @@ local ClanNetwork = {}
         end)
 
         ClanInfoMenuLeave.MouseButton1Down:Connect(function()
+            warn("leaving")
             events.LeaveClan:FireServer()
             MenuButtonToggle = true
             modules.ClanUiHandler.ClanInfoMenu(false,{0.5,Enum.EasingStyle.Back,UDim2.new(0.111, 0,-0.358, 0)})

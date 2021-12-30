@@ -51,6 +51,9 @@ end)
 task.spawn(function()
     modules.ClanNetworkHandler.SetupClanInfoRefresh()
 end)
+task.spawn(function()
+    modules.DebugModule.SetupDebugConnection()
+end)
 
 -- Have these things at the very bottom of the code
 game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)

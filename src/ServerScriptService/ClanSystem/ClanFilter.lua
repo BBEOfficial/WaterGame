@@ -30,7 +30,7 @@ local module = {}
             local clanTable = {
                 ["Name"] = filteredText,
                 ["GUID"] = HTTP_SERVICE:GenerateGUID(false),
-                ["Leader"] = player.Name,
+                ["Leader"] = {["Name"] = player.Name,["UID"] = player.UserId},
                 ["Followers"] = {}
             }
             modules.ClanData[clanTable.GUID] = clanTable

@@ -93,10 +93,14 @@ events.GetClanInfo.OnServerInvoke = function(player)
 end
 
 events.SendInvite.OnServerEvent:Connect(function(from,to)
-    warn("sending invite")
-    local IsInClan,ClanData = isPlayerInClan(from)
+    local IsInClan,CD = isPlayerInClan(from)
     if  IsInClan == false then
         return "Player is not in a clan"
+    end
+
+    if modules.ClanData[CD.GUID].Leader.Name ~= from.Name then
+        warn("Player does not own clan")
+        return
     end
 
     local plr = Players:FindFirstChild(to)
@@ -104,23 +108,25 @@ events.SendInvite.OnServerEvent:Connect(function(from,to)
         return
     end
 
-    local args = table.pack(plr,ClanData.Name,ClanData.GUID)
+    local args = table.pack(plr,CD.Name,CD.GUID)
 
     modules.ClanInvite.InvitePlayer(from,args)
-end)
+end) 
 
-events.JoinClan.OnServerEvent:Connect(function(plr,guid)
+events.JoinClan.OnServerEvent:Connect(function(plr,guid,declined)
+    if declined == true then
+        local clan = modules.ClanData[guid]
+        local clanLeader = clan.Leader.Name
+
+        events.SendDebug:FireClient(Players:FindFirstChild(clanLeader), {"Invite Declined.",plr.Name.." declined your invite to '"..clan.Name.."'."})
+
+        return
+    end
+
     local ans = modules.ClanInvite.JoinClan(plr,guid)
 
-    repeat wait() until ans
-
-    warn("Refreshing Clan Information")
-    for index,player in ipairs(modules.ClanData[guid]["Followers"]) do -- this is where the error is ----------------------------------------------------
-        print(player.Name)
-        local actualPlayer = Players:FindFirstChild(player.Name)
-        events.RefreshClanInfo:FireClient(actualPlayer)
-    end
-    events.RefreshClanInfo:FireClient(Players:FindFirstChild(modules.ClanData[guid].Leader))
-    events.RefreshClanInfo:FireClient(plr)
+    repeat wait() until ans -- just waits until we get a return from the join clan module
+    
+    modules.ClanRefreshUI.Refresh(guid,table.pack(modules,events))
 end)
 

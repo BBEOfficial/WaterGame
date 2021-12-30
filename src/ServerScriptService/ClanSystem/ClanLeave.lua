@@ -1,6 +1,6 @@
 local module = {}
     module.Leave = function(player,args)
-        local modules,events = args[1],args[2]
+        local modules,events = table.unpack(args)
 
         local ClanGUID = modules.ClanData["ListOfPlayersInAnyClan"][player.UserId]["GUID"]
         local CurrentClan = modules.ClanData[ClanGUID]
@@ -12,22 +12,34 @@ local module = {}
 
                 CurrentClan.Leader = ChosenFollower
                 modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = nil
+                
+                for i,v in pairs(CurrentClan.Followers) do
+                    if v.UserId == ChosenFollower.UserId then
+                        CurrentClan.Followers[i] = nil
+                    end
+                end
 
+                modules.ClanRefreshUI.Refresh(ClanGUID,table.pack(modules,events))
                 warn("Handed over ownership")
-                print(modules.ClanData)
                 return true
            else
                 modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = nil
                 modules.ClanData[ClanGUID] = nil
 
+
                 warn("Clan deleted")
-                print(modules.ClanData)
                 return true
            end
         else
-            CurrentClan.Followers[player.UserId] = nil
+            for i,v in pairs(CurrentClan.Followers) do
+                if v.UserId == player.UserId then
+                    CurrentClan.Followers[i] = nil
+                end
+            end
+            modules.ClanData["ListOfPlayersInAnyClan"][player.UserId] = nil
+
+            modules.ClanRefreshUI.Refresh(ClanGUID,table.pack(modules,events))
             warn("Left clan")
-            print(modules.ClanData)
             return true
         end
     end

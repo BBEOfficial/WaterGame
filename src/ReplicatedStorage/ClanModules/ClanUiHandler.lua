@@ -95,7 +95,10 @@ local UiHandler = {}
     end
 
     UiHandler.ApplyClanInfoToUI = function(info : table)
-        print(info)
+        if type(info) ~= "table" then
+            return
+        end
+
         local CIM = ClanGui:WaitForChild("CLAN_INFO_MENU")
         CIM = CIM:WaitForChild("Menu")
 
@@ -103,19 +106,26 @@ local UiHandler = {}
         local ClanPlayerCount = CIM:WaitForChild("ClanPlayerCount")
         local PlayersFrame = CIM:WaitForChild("PlayersFrame")
 
-        ClanNameBox.Text = info["Name"]
+        ClanNameBox.Text = "["..info["Name"].."]"
         ClanPlayerCount.Text = "PLAYER COUNT:"..(#info["Followers"] + 1).."/5"
          
         -- Player frame code
         local CO = PlayersFrame:WaitForChild("CLANOWNER")
-        local UID = Players:FindFirstChild(info["Leader"]).UserId-- if this breaks oh well ill fix it but cant be bothered rn
-        CO.PName.Text = info["Leader"].." (Clan Leader)"
-        CO.PlayerInfo.Username.Value = info["Leader"]
+        local UID = Players:FindFirstChild(info["Leader"].Name).UserId-- if this breaks oh well ill fix it but cant be bothered rn
+        CO.PName.Text = info["Leader"].Name.." (Clan Leader)"
+        CO.PlayerInfo.Username.Value = info["Leader"].Name
         CO.PlayerInfo.UserId.Value = UID
 
         local AmILeader = (if LocalPlayer.UserId == UID then true else false)
 
+        if AmILeader == true then
+            CIM.InviteBox.Visible = true
+        else
+            CIM.InviteBox.Visible = false
+        end
+
         for index,Player in ipairs(info["Followers"]) do
+
             warn("follower")
             local RelativeFrame = PlayersFrame:FindFirstChild("PlayerFrame"..index)
             if not RelativeFrame then

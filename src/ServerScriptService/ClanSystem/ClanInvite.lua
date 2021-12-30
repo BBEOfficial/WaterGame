@@ -30,7 +30,6 @@ local module = {}
 
     module.InvitePlayer = function(from,args)
         events.ReceiveInvite:FireClient(args[1],args)
-        warn("client fired")
     end
 
     module.JoinClan = function(from,clanGUID)
@@ -48,7 +47,7 @@ local module = {}
             return false
         end
 
-        modules.ClanData[clanGUID]["Followers"][from.UserId] = {["Name"] = from.Name,["UserId"] = from.UserId}
+        table.insert(modules.ClanData[clanGUID]["Followers"],{["Name"] = from.Name,["UserId"] = from.UserId})
         modules.ClanData["ListOfPlayersInAnyClan"][from.UserId] = {["UID"] = from.UserId,["Name"] = Data_table.Name,["GUID"] = Data_table.GUID}
 
         return true
