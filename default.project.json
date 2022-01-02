@@ -22,11 +22,6 @@
       "$ignoreUnknownInstances": true,
       "$path": "src/ServerStorage"
     },
-    "StarterGui": {
-      "$className": "StarterGui",
-      "$ignoreUnknownInstances": true,
-      "$path": "src/StarterGui"
-    },
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
