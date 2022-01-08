@@ -9,7 +9,7 @@ local UiHandler = require(InventoryModules:WaitForChild("InventoryUiHandler"))
 local NetworkHandler = require(InventoryModules:WaitForChild("InventoryNetworkHandler"))
 
 -- Variables
-
+ 
 -- Functions
 function thread(func,t)
 	if t ~= nil then
@@ -24,10 +24,11 @@ function thread(func,t)
 end
 
 local module = {}
-	function module.Init()
-		thread(UiHandler.InitialiseUI)
+	function module.Init(m)
+		thread(UiHandler.InitialiseUI,table.pack(m))
 		thread(NetworkHandler.setupServerConnection)
 		thread(NetworkHandler.setupClientUpdate)
+	--	thread(NetworkHandler.requestPlayerInventory)
 	end
 	
 	function module.ToggleInv(v)

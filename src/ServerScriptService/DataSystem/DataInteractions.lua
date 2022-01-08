@@ -20,6 +20,7 @@ local Key = "%s-data1"
 
 function OnPlayerLeft(plr)
 	-- DataStore.POST(plr.UserId.."-data",{"BLANK"},plr.UserId)
+	-- print("saved")
 	local serverData = ServerData_Module.GetData(plr.UserId) -- grabs the players data from the server data module
 	
 	-- Checks for corrupted data

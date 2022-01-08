@@ -25,6 +25,7 @@ local currentlySelectedSlot = nil
 local lastTween = nil
 
 -- events
+local modules = {}
 
 local INVENTORY_EVENT_FOLDER = REPLICATED_STORAGE:WaitForChild("InventoryEvents")
 local EVENTS = {
@@ -75,7 +76,7 @@ do
 end
 
 -- main functions
-do
+do 
 	mainFunctions = {}
 	
 	function mainFunctions.collidesWith(gui1, gui2) ---A little different wording but it serves the same purpose
@@ -87,26 +88,43 @@ do
 
 		return ((gui1_topLeft.x < gui2_bottomRight.x and gui1_bottomRight.x > gui2_topLeft.x) and (gui1_topLeft.y < gui2_bottomRight.y and gui1_bottomRight.y > gui2_topLeft.y))
 	end
+
+	function mainFunctions.getItemInfo(slot)
+		for _,itemtypelist in pairs(modules.Items["Items"]) do
+			for _,itemtype in pairs(itemtypelist) do
+				for _,item in pairs(itemtype) do
+					if "Slot"..item.Slot == slot then
+						if not item["Item Type"] or not item.Uid then
+							return "0","0"
+						else
+							return item["Item Type"],item.Uid
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 
 
 local module = {
-	["UidSlots"] = {
-		["1"] = {0,0},
-		["2"] = {0,0},
-		["3"] = {0,0},
-		["4"] = {0,0},
-		["5"] = {0,0},
-		["6"] = {0,0},
-		["7"] = {0,0},
-		["8"] = {0,0},
-	}
+	-- ["UidSlots"] = {
+	-- 	["1"] = {0,0},
+	-- 	["2"] = {0,0},
+	-- 	["3"] = {0,0},
+	-- 	["4"] = {0,0},
+	-- 	["5"] = {0,0},
+	-- 	["6"] = {0,0},
+	-- 	["7"] = {0,0},
+	-- 	["8"] = {0,0},
+	-- }
 }
 
-function module.InitialiseUI()
+function module.InitialiseUI(m)
 	Spring = SPRING_MODULE.new(0)
 	Spring.Speed = 20
+	modules = m
 end
 
 function module.UpdateIcons(v)
@@ -141,7 +159,7 @@ function module.runUpdates()
 		wait()
 	until open == false
 end
-
+ 
 function module.toggleInventory(v)
 	if v == false then
 		if lastTween ~= nil then
@@ -152,8 +170,8 @@ function module.toggleInventory(v)
 		open = false
 		lastTween = TWEEN_SERVICE:Create(Area,TweenInfo.new(0.25,Enum.EasingStyle.Linear),{Size = UDim2.new(0,0,0,0),Position = UDim2.new(0.5,0,2,0)}):Play() -- tweens the inventory closed
 		currentlySelectedSlot = currentlySelectedSlot or "Slot1" -- slot1 = empty hand
-		
-		warn("selection: "..currentlySelectedSlot)
+
+		modules.WeaponModule.NewSelection(mainFunctions.getItemInfo(currentlySelectedSlot))
 	elseif v == true then
 		if lastTween ~= nil then
 			lastTween:Pause()

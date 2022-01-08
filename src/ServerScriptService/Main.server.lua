@@ -24,7 +24,7 @@ end
 moduleScraper(SSS)
 eventScraper(ReplicatedStorage)
 
-wait(5)
+-- wait(5)
 
 -- Data Stuff
 for _,v in pairs(Players:GetPlayers()) do -- temporary until roblox fixes studio with the player joining before the code runs smh
@@ -43,8 +43,6 @@ Players.PlayerRemoving:Connect(function(plr)
 end)
 
 -- Clan Stuff
-warn("clan stuff")
-
 modules.ClanInvite.Init(modules)
 
 function isPlayerInClan(player)
@@ -93,6 +91,11 @@ events.GetClanInfo.OnServerInvoke = function(player)
 end
 
 events.SendInvite.OnServerEvent:Connect(function(from,to)
+    if to == from.Name then
+        warn("Cannot invite yourself to your own clan")
+        return
+    end
+
     local IsInClan,CD = isPlayerInClan(from)
     if  IsInClan == false then
         return "Player is not in a clan"

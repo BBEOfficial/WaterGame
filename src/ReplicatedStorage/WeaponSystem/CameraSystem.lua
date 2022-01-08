@@ -14,7 +14,7 @@ local zooms = {
 	["SHIFT_ZOOM"] = Vector2.new(10,5);
 	["AIM_ZOOM"] = Vector2.new(7,7);
 }
-
+ 
 local conn 
 
 function changeZoom(vec)
@@ -27,8 +27,10 @@ function shiftLock(active,s,preset)
 	local hum = s["character"]:WaitForChild("Humanoid")
 	local mouse = lp:GetMouse()
 	
-	local offset = offsets[preset.."_OFFSET"]
-	local zoom = zooms[preset.."_ZOOM"]
+	
+	local offset = (if active == true then offsets[preset.."_OFFSET"] else nil)
+	local zoom = (if active == true then zooms[preset.."_ZOOM"] else nil)
+
 	
 	if active then
 		hum.CameraOffset = offset -- I assume this is about the right camera offset.
@@ -53,17 +55,15 @@ end
 local module = {}
 module.__index = module
 
-	function module.new(camera)
+	function module.new()
 		local character = lp.Character or lp.CharacterAdded:Wait()
 		
 		local rotation = Instance.new("BodyGyro") --Create a new body gyro.
 		rotation.P = 1000^4 --Increase the power
 		rotation.Parent = character.Humanoid.RootPart --Parent it to the HumanoidRootPart
 		
-		local t = {}
+		local t = {["rotation"]  = rotation, ["character"] = character}
 		setmetatable(t,module)
-		t.rotation = rotation
-		t.character = character
 
 		return t
 	end
